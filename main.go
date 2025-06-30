@@ -192,7 +192,7 @@ func HTMLToImage(browserCtx context.Context, htmlContent string) ([]byte, error)
 			document.readyState === 'complete' &&
 			Array.from(document.querySelectorAll('img')).every(img => img.complete && img.naturalHeight > 0)
 		`, nil, chromedp.WithPollingTimeout(15*time.Second)),
-		chromedp.FullScreenshot(&buf, 90),
+		chromedp.FullScreenshot(&buf, 100),
 	}
 
 	// Run the tasks against the task-specific context.
