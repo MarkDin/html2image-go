@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/chromedp/chromedp"
 )
@@ -66,11 +67,24 @@ func (p *ChromePool) Return(ctx context.Context) {
 // Shutdown gracefully closes all browser instances and the allocator.
 func (p *ChromePool) Shutdown() {
 	log.Println("Shutting down Chrome pool...")
+
+	// 设置 60 秒超时
+	timeout := time.After(60 * time.Second)
+	closed := 0
+
 	// Close all browser contexts
 	for i := 0; i < cap(p.pool); i++ {
-		ctx := <-p.pool
-		chromedp.Cancel(ctx)
+		select {
+		case ctx := <-p.pool:
+			chromedp.Cancel(ctx)
+			closed++
+		case <-timeout:
+			log.Printf("Warning: Shutdown timeout after 60s, only closed %d/%d contexts", closed, cap(p.pool))
+			goto cleanup
+		}
 	}
+
+cleanup:
 	// Close the allocator context
 	p.cancel()
 	log.Println("Chrome pool shut down.")

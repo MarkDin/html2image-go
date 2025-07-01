@@ -188,10 +188,7 @@ func HTMLToImage(browserCtx context.Context, htmlContent string) ([]byte, error)
 		// Note: The Navigate action will create a new tab in the shared browser instance.
 		chromedp.Navigate(dataURL),
 		chromedp.WaitVisible(`body`, chromedp.ByQuery),
-		chromedp.Poll(`
-			document.readyState === 'complete' &&
-			Array.from(document.querySelectorAll('img')).every(img => img.complete && img.naturalHeight > 0)
-		`, nil, chromedp.WithPollingTimeout(15*time.Second)),
+		chromedp.Poll(POLL_FUNCTION, nil, chromedp.WithPollingTimeout(5*time.Second)),
 		chromedp.FullScreenshot(&buf, 100),
 	}
 
@@ -250,10 +247,7 @@ func HTMLToImageWithServer(browserCtx context.Context, htmlContent string) ([]by
 	tasks := chromedp.Tasks{
 		chromedp.Navigate(url),
 		chromedp.WaitVisible(`body`, chromedp.ByQuery),
-		chromedp.Poll(`
-			document.readyState === 'complete' &&
-			Array.from(document.querySelectorAll('img')).every(img => img.complete && img.naturalHeight > 0)
-		`, nil, chromedp.WithPollingTimeout(15*time.Second)),
+		chromedp.Poll(POLL_FUNCTION, nil, chromedp.WithPollingTimeout(5*time.Second)),
 		chromedp.FullScreenshot(&buf, 90),
 	}
 
